@@ -3,20 +3,17 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY package*.json .
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
-RUN ls -la
 
 
-FROM node:22-alpine as production
+FROM node:22-alpine AS production
 WORKDIR /app
 COPY --from=builder /app/package*.json ./
-RUN npm install --omit=dev
-RUN ls -la .
+RUN npm ci --omit=dev --no-audit --no-fund \
+  && npm i -g pm2 
 COPY --from=builder /app/dist ./dist/
-RUN ls -la
+COPY ./ecosystem.config.js ./
 
-ENTRYPOINT [ "npm", "run", "start:prod" ]
-
-EXPOSE 3000
+ENTRYPOINT [ "pm2-runtime", "start", "ecosystem.config.js" ]
