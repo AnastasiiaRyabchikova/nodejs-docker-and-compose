@@ -1,0 +1,23 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    image: backend-compose
+    ports: 
+      - '4000:3000'
+    env_file: .env
+  frontend:
+    container_name: frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    image: frontend-compose
+    ports: 
+      - '8080:3000'
+    env_file: .env
+  database:
+    container_name: database
+    image: postgres:12-alpine
+    env_file: .env

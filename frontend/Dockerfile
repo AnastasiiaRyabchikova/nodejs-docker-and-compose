@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:16-alpine AS builder
 
 WORKDIR /app
 
@@ -9,13 +9,12 @@ RUN npm run build
 RUN ls -la
 
 
-FROM node:22-alpine as production
+FROM nginx:latest as production
 WORKDIR /app
 COPY --from=builder /app/package*.json ./
 RUN npm install --omit=dev
-RUN ls -la .
-COPY --from=builder /app/dist ./dist/
-RUN ls -la
+COPY --from=builder /app/build ./build/
+COPY --from=builder /app/nginx /etc/nginx
 
 ENTRYPOINT [ "npm", "run", "start:prod" ]
 
